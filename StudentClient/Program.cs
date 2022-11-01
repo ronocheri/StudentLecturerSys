@@ -1,6 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Net.Sockets;
+using System.Text;
 
-string studentId = "", FirstDegreefaculty = "", secondDegreefaculty = "";
+const int PORT_NO = 5000;
+const string SERVER_IP = "127.0.0.1";
+
+string studentId = "";
 int firstDegreeAnswer = 0, secondDegreeAnswer = 0;
 double avg = 0;
 
@@ -35,23 +40,6 @@ while (firstDegreeAnswer < 1 || firstDegreeAnswer > 4)
     }
 }
 
-switch (firstDegreeAnswer)
-{
-    case 1:
-        FirstDegreefaculty = "Exact sciences";
-        break;
-    case 2:
-        FirstDegreefaculty = "Social sciences";
-        break;
-    case 3:
-        FirstDegreefaculty = "Natural sciences";
-        break;
-    case 4:
-        FirstDegreefaculty = "Humanities";
-        break;
-    default: break;
-}
-
 //average
 
 while (avg < 1 || avg > 100)
@@ -83,26 +71,28 @@ while (secondDegreeAnswer < 1 || secondDegreeAnswer > 4)
     }
 }
 
-switch (secondDegreeAnswer)
-{
-    case 1:
-        secondDegreefaculty = "Exact sciences";
-        break;
-    case 2:
-        secondDegreefaculty = "Social sciences";
-        break;
-    case 3:
-        secondDegreefaculty = "Natural sciences";
-        break;
-    case 4:
-        secondDegreefaculty = "Humanities";
-        break;
-    default: break;
-}
-
 
 Console.WriteLine("Here are your picks (id:" + studentId + ") :");
 
-Console.WriteLine("FirstDegreefaculty: " + FirstDegreefaculty + ", avg: " + avg + " , secondDegreefaculty: " + secondDegreefaculty);
+Console.WriteLine("FirstDegreefaculty: " + firstDegreeAnswer + ", avg: " + avg + " , secondDegreefaculty: " + secondDegreeAnswer);
 
-//Write to DB - To Do
+//Write to DB
+
+string textToSend = "StudentClient,"+studentId+","+ firstDegreeAnswer + ","+ avg+","+ secondDegreeAnswer;
+
+//---create a TCPClient object at the IP and port no.---
+TcpClient client = new TcpClient(SERVER_IP, PORT_NO);
+NetworkStream nwStream = client.GetStream();
+byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
+
+//---send the text---
+Console.WriteLine("Sending : " + textToSend);
+nwStream.Write(bytesToSend, 0, bytesToSend.Length);
+
+//---read back the text---
+byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+int bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+Console.WriteLine("Received : " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
+
+Console.ReadLine();
+client.Close();

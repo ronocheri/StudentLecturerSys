@@ -1,14 +1,15 @@
 ﻿
+using System.Net.Sockets;
+using System.Text;
+
+const int PORT_NO = 5000;
+const string SERVER_IP = "127.0.0.1";
+
 int queryID=0, facultyID = 0;
-double avg = 0;
 
 Console.WriteLine("Hello, lecturer! Welcome to our new system");
 while (queryID < 1 || queryID > 3)
 {
-    //if (queryID == -1)
-    //    break;
-
-    Console.WriteLine("Please enter your query id");
     Console.WriteLine("1- How many students applied to a certain faculty");
     Console.WriteLine("2- Average and standard deviation of the scores of the students who applied to this faculty");
     Console.WriteLine("3- The data of the 2 outstanding students who applied to this faculty");
@@ -26,8 +27,25 @@ while (queryID < 1 || queryID > 3)
                 facultyID = Convert.ToInt32(Console.ReadLine());
 
                 //call the server
+                string textToSend = "LecturerClient," + queryID + "," + facultyID;
 
-                Console.WriteLine("Here are your picks- queryID:" + queryID + " ,facultyID:"+facultyID);
+                //---create a TCPClient object at the IP and port no.---
+                TcpClient client = new TcpClient(SERVER_IP, PORT_NO);
+                NetworkStream nwStream = client.GetStream();
+                byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
+
+                //---send the text---
+                Console.WriteLine("Sending : " + textToSend);
+                nwStream.Write(bytesToSend, 0, bytesToSend.Length);
+
+                //---read back the text---
+                byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+                int bytesRead = nwStream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+                Console.WriteLine("Received : " + Encoding.ASCII.GetString(bytesToRead, 0, bytesRead));
+                Console.ReadLine();
+                client.Close();
+
+                //Console.WriteLine("Here are your picks- queryID:" + queryID + " ,facultyID:"+facultyID);
 
             }
             catch (Exception ex)
