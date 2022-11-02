@@ -8,7 +8,7 @@ using System.Text;
 class Program
 {
     //connection string details
-    const string datasource = @"DESKTOP-7IMBLDM";//server
+    const string datasource = @".\SQLEXPRESS";//server
     const string database = "StudentsPicks"; //database name
     const string connString = @"Data Source=" + datasource + ";Initial Catalog=" + database + ";Trusted_Connection=true";
 
@@ -58,8 +58,8 @@ class Program
             string answer = "";
 
             startIndex = inputForQuery.IndexOf(',');
-            int queryNum = Convert.ToInt32(inputForQuery.Substring(0, startIndex));
-            int facultyID = Convert.ToInt32(inputForQuery.Substring(startIndex + 1));
+            int queryNum = Convert.ToInt32(inputForQuery.Substring(0, startIndex)); //extract the query number
+            int facultyID = Convert.ToInt32(inputForQuery.Substring(startIndex + 1)); //extract the faculty id
             switch (queryNum)
             {
                 case 1:
@@ -116,9 +116,6 @@ class Program
             // Call Close when done reading.
             reader.Close();
             return Convert.ToInt32(res.ToString());
-
-            //int num=command.ExecuteNonQuery(); //execute the Query
-            //return num;
 
         }
     }
